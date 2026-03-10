@@ -42,7 +42,7 @@ export function AppSidebar() {
       'text-sidebar-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground'
     )}>
     {isActive &&
-      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[60%] w-[3px] bg-gradient-to-b from-transparent via-sidebar-primary to-transparent shadow-[0_0_12px_hsl(var(--sidebar-primary))] rounded-r-full" />
+    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[60%] w-[3px] bg-gradient-to-b from-transparent via-sidebar-primary to-transparent shadow-[0_0_12px_hsl(var(--sidebar-primary))] rounded-r-full" />
     }
       <item.icon className={cn(
       'h-[18px] w-[18px] shrink-0 transition-colors',
@@ -115,7 +115,7 @@ export function AppSidebar() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 space-y-0.5 px-3 pb-4">
+        <nav className="flex-1 space-y-0.5 pb-4 px-[12px] border-none rounded-none">
           {visibleNavItems.map((item) => {
             const isActive = item.to === '/' ?
             location.pathname === '/' :
@@ -141,7 +141,7 @@ export function AppSidebar() {
                 'text-sidebar-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground'
               )}>
               {location.pathname === '/anvandare' &&
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[60%] w-[3px] bg-gradient-to-b from-transparent via-sidebar-primary to-transparent shadow-[0_0_12px_hsl(var(--sidebar-primary))] rounded-r-full" />
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[60%] w-[3px] bg-gradient-to-b from-transparent via-sidebar-primary to-transparent shadow-[0_0_12px_hsl(var(--sidebar-primary))] rounded-r-full" />
               }
                 <Users className={cn(
                 'h-[18px] w-[18px] shrink-0 transition-colors',
