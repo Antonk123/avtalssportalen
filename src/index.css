@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -72,9 +72,9 @@
     --status-warning: 42 65% 46%;
     --status-warning-foreground: 200 18% 16%;
 
-    /* Typography - Legal Precision */
-    --font-heading: 'Instrument Serif', Georgia, serif;
-    --font-body: 'Atkinson Hyperlegible', 'Segoe UI', sans-serif;
+    /* Typography - Nordic Modernism */
+    --font-heading: 'DM Sans', system-ui, sans-serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
   }
 
   .dark {

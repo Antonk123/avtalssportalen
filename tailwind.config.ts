@@ -19,8 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Instrument Serif", "Georgia", "serif"],
-        body: ["Atkinson Hyperlegible", "Segoe UI", "sans-serif"],
+        heading: ["DM Sans", "system-ui", "sans-serif"],
+        body: ["DM Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
