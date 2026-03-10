@@ -1,0 +1,1 @@
+CREATE POLICY "Admins can delete reminder_log" ON public.reminder_log FOR DELETE TO authenticated USING (has_role(auth.uid(), 'admin'::app_role));

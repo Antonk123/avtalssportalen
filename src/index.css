@@ -1,0 +1,286 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode - "Morning Office" */
+    --background: 216 18% 96%;
+    --foreground: 200 18% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 18% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 18% 18%;
+
+    /* Primary - Deep Ink Blue */
+    --primary: 216 45% 32%;
+    --primary-foreground: 0 0% 100%;
+    --primary-vibrant: 213 68% 48%;
+    --primary-glow: 210 85% 58%;
+
+    --secondary: 216 15% 91%;
+    --secondary-foreground: 200 18% 24%;
+
+    --muted: 216 12% 91%;
+    --muted-foreground: 200 10% 48%;
+
+    --accent: 216 15% 92%;
+    --accent-foreground: 200 18% 18%;
+
+    /* Accents - "Document Seal" */
+    --accent-copper: 22 65% 48%;
+    --accent-amber: 42 88% 58%;
+    --accent-forest: 155 42% 38%;
+
+    --destructive: 4 55% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 15% 87%;
+    --input: 216 15% 84%;
+    --ring: 216 45% 32%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar - "Document Binder" */
+    --sidebar-background: 220 32% 10%;
+    --sidebar-foreground: 216 12% 68%;
+    --sidebar-primary: 213 68% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 25% 16%;
+    --sidebar-accent-foreground: 216 10% 92%;
+    --sidebar-border: 220 28% 18%;
+    --sidebar-ring: 213 68% 48%;
+
+    /* Status - "Ink & Seal" */
+    --status-active: 155 42% 38%; /* Fresh Ink */
+    --status-active-foreground: 0 0% 100%;
+    --status-active-glow: 155 65% 45%;
+    --status-expired: 8 48% 45%; /* Faded Document */
+    --status-expired-foreground: 0 0% 100%;
+    --status-expired-muted: 8 35% 55%;
+    --status-terminated: 22 55% 42%; /* Struck Through */
+    --status-terminated-foreground: 0 0% 100%;
+    --status-draft: 216 20% 45%; /* Pencil Sketch */
+    --status-draft-foreground: 0 0% 100%;
+    --status-review: 268 48% 52%; /* Purple Stamp */
+    --status-review-foreground: 0 0% 100%;
+    --status-review-glow: 268 68% 62%;
+    --status-warning: 42 65% 46%;
+    --status-warning-foreground: 200 18% 16%;
+
+    /* Typography - Legal Precision */
+    --font-heading: 'Instrument Serif', Georgia, serif;
+    --font-body: 'Atkinson Hyperlegible', 'Segoe UI', sans-serif;
+  }
+
+  .dark {
+    /* Dark mode - "Night Office" */
+    --background: 220 24% 8%;
+    --foreground: 216 12% 92%;
+    --card: 220 22% 11%;
+    --card-foreground: 216 12% 92%;
+    --popover: 220 22% 11%;
+    --popover-foreground: 216 12% 92%;
+
+    /* Primary - Enhanced with glow */
+    --primary: 213 68% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-vibrant: 210 85% 62%;
+    --primary-glow: 213 88% 58%;
+
+    --secondary: 220 18% 15%;
+    --secondary-foreground: 216 12% 92%;
+    --muted: 220 18% 15%;
+    --muted-foreground: 216 10% 54%;
+    --accent: 220 18% 15%;
+    --accent-foreground: 216 12% 92%;
+
+    /* Accents - Softer in dark mode */
+    --accent-copper: 22 78% 58%;
+    --accent-amber: 42 88% 65%;
+    --accent-forest: 155 48% 45%;
+
+    --destructive: 8 55% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 18% 16%;
+    --input: 220 18% 16%;
+    --ring: 213 68% 55%;
+
+    /* Sidebar */
+    --sidebar-background: 220 32% 7%;
+    --sidebar-foreground: 216 12% 68%;
+    --sidebar-primary: 213 68% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 25% 13%;
+    --sidebar-accent-foreground: 216 10% 92%;
+    --sidebar-border: 220 28% 14%;
+    --sidebar-ring: 213 68% 55%;
+
+    /* Status - Softer colors for dark */
+    --status-active: 155 48% 45%;
+    --status-active-glow: 155 68% 52%;
+    --status-expired: 8 55% 52%;
+    --status-expired-muted: 8 42% 58%;
+    --status-terminated: 22 62% 52%;
+    --status-draft: 216 25% 52%;
+    --status-review: 268 55% 58%;
+    --status-review-glow: 268 75% 68%;
+    --status-warning: 42 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Light mode - "Morning Office" atmospheric depth */
+    background-image:
+      radial-gradient(ellipse at 15% 12%, hsl(var(--primary-vibrant) / 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 88%, hsl(var(--accent-copper) / 0.05) 0%, transparent 55%),
+      linear-gradient(135deg, hsl(216 18% 96%) 0%, hsl(210 15% 94%) 100%);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    /* Dark mode - "Night Office" with conic gradient */
+    background-image:
+      radial-gradient(ellipse at 25% 20%, hsl(var(--primary-glow) / 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 80%, hsl(var(--accent-copper) / 0.08) 0%, transparent 60%),
+      conic-gradient(from 135deg at 50% 50%, hsl(220 24% 8%) 0deg, hsl(216 28% 10%) 180deg, hsl(220 24% 8%) 360deg);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  p, li, td {
+    letter-spacing: 0.003em;
+    line-height: 1.5;
+  }
+
+  /* Keyframe Animations */
+  @keyframes badge-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--status-expired) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--status-expired) / 0);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      left: -8px;
+      opacity: 0;
+    }
+    to {
+      left: 0;
+      opacity: 1;
+    }
+  }
+
+  @keyframes stamp-in {
+    from {
+      opacity: 0;
+      transform: scale(0.9) rotateX(-15deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotateX(0deg);
+    }
+  }
+
+  /* Accessibility - Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Pattern System - "Paper Stack" */
+  .pattern-stacked-documents {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 80px,
+        hsl(var(--primary) / 0.015) 80px,
+        hsl(var(--primary) / 0.015) 81px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 80px,
+        hsl(var(--primary) / 0.02) 80px,
+        hsl(var(--primary) / 0.02) 81px
+      );
+  }
+
+  .pattern-binding-perforation {
+    position: relative;
+  }
+
+  .pattern-binding-perforation::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        hsl(var(--sidebar-primary) / 0.3) 0px,
+        hsl(var(--sidebar-primary) / 0.3) 3px,
+        transparent 3px,
+        transparent 12px
+      );
+  }
+
+  .badge-pulse-urgent {
+    animation: badge-pulse 2s ease-out infinite;
+  }
+
+  .card-elevated {
+    box-shadow:
+      0 1px 2px hsl(var(--primary) / 0.02),
+      0 4px 8px hsl(var(--primary) / 0.04),
+      0 8px 16px hsl(var(--primary) / 0.03);
+    transition: all 0.3s ease-out;
+  }
+
+  .card-elevated:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px hsl(var(--primary) / 0.04),
+      0 8px 16px hsl(var(--primary) / 0.08),
+      0 16px 32px hsl(var(--primary) / 0.06);
+  }
+
+  .dark .card-elevated {
+    box-shadow:
+      0 1px 2px hsl(0 0% 0% / 0.4),
+      0 4px 8px hsl(0 0% 0% / 0.3),
+      inset 0 0.5px 0 hsl(var(--primary) / 0.08);
+  }
+}
