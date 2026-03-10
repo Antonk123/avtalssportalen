@@ -118,11 +118,11 @@ export default function Dashboard() {
     .map(([name, value]) => ({ name, value }));
 
   const pieColors: Record<string, string> = {
-    Aktivt: 'hsl(160, 40%, 40%)',
-    Granskning: 'hsl(270, 40%, 50%)',
-    Utgånget: 'hsl(4, 48%, 48%)',
-    Uppsagt: 'hsl(30, 55%, 46%)',
-    Utkast: 'hsl(200, 10%, 50%)',
+    Aktivt: 'hsl(var(--status-active))',
+    Granskning: 'hsl(var(--status-review))',
+    Utgånget: 'hsl(var(--status-expired))',
+    Uppsagt: 'hsl(var(--status-terminated))',
+    Utkast: 'hsl(var(--status-draft))',
   };
 
   const hasFilters = dateFrom || dateTo || typeFilter !== 'Alla';
@@ -262,7 +262,7 @@ export default function Dashboard() {
                     <XAxis type="number" tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
                     <YAxis dataKey="name" type="category" width={90} tick={{ fontSize: 10 }} />
                     <Tooltip formatter={(v: number) => [`${v.toLocaleString('sv-SE')} kr`, 'Värde']} />
-                    <Bar dataKey="value" fill="hsl(160, 40%, 40%)" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -284,7 +284,7 @@ export default function Dashboard() {
                     <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                     <YAxis tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
                     <Tooltip formatter={(v: number) => [`${v.toLocaleString('sv-SE')} kr`, 'Värde']} />
-                    <Bar dataKey="value" fill="hsl(270, 40%, 50%)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="value" fill="hsl(var(--primary-vibrant))" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -303,7 +303,7 @@ export default function Dashboard() {
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                   <Tooltip formatter={(v: number) => [v, 'Avtal']} />
-                  <Bar dataKey="count" name="Utgående avtal" fill="hsl(30, 55%, 46%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" name="Utgående avtal" fill="hsl(var(--accent-copper))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
