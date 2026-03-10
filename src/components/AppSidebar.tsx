@@ -60,7 +60,7 @@ export function AppSidebar() {
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 md:hidden rounded-lg bg-sidebar p-2 text-sidebar-foreground shadow-lg"
+        className="fixed top-6 left-4 z-[60] md:hidden rounded-lg bg-sidebar p-2 text-sidebar-foreground shadow-lg"
         aria-label="Öppna meny">
         
         <Menu className="h-5 w-5" />

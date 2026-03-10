@@ -130,7 +130,7 @@ export default function Dashboard() {
   return (
     <PageTransition>
       <div className="space-y-8">
-        <div>
+        <div className="pl-14 md:pl-0">
           <h1 className="font-heading text-2xl font-bold text-foreground">
             {firstName ? `Välkommen tillbaka, ${firstName}` : 'Dashboard'}
           </h1>
@@ -138,7 +138,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-sm">
+        <div className="hidden md:flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 shadow-sm">
           <Filter className="hidden sm:block h-4 w-4 text-muted-foreground mt-1" />
           <div className="flex-1 min-w-[140px]">
             <Label className="text-xs text-muted-foreground">Från</Label>
