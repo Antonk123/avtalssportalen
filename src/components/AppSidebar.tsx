@@ -77,8 +77,8 @@ export function AppSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-sidebar transition-transform duration-300 md:relative md:translate-x-0 pattern-binding-perforation',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 left-0 z-50 shrink-0 flex flex-col bg-sidebar transition-all duration-300 md:relative md:translate-x-0 md:w-60 pattern-binding-perforation',
+          mobileOpen ? 'translate-x-0 w-60' : '-translate-x-full w-0'
         )}>
 
         {/* Logo */}
