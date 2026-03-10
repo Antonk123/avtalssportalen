@@ -259,8 +259,8 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={valueByCustomer} layout="vertical" margin={{ left: 5, right: 10, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
-                    <YAxis dataKey="name" type="category" width={90} tick={{ fontSize: 10 }} />
+                    <XAxis type="number" tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+                    <YAxis dataKey="name" type="category" width={90} tick={{ fontSize: 11 }} />
                     <Tooltip formatter={(v: number) => [`${v.toLocaleString('sv-SE')} kr`, 'Värde']} />
                     <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -281,8 +281,8 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={valueByCategory} margin={{ left: 5, right: 10, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                    <YAxis tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
                     <Tooltip formatter={(v: number) => [`${v.toLocaleString('sv-SE')} kr`, 'Värde']} />
                     <Bar dataKey="value" fill="hsl(var(--primary-vibrant))" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -300,8 +300,8 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={expiringByMonth} margin={{ left: 5, right: 10, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(v: number) => [v, 'Avtal']} />
                   <Bar dataKey="count" name="Utgående avtal" fill="hsl(var(--accent-copper))" radius={[4, 4, 0, 0]} />
                 </BarChart>

@@ -41,7 +41,7 @@ export function KpiCard({ title, value, icon: Icon, variant = 'default', index =
         transition: { duration: 0.2 }
       }}
       className={cn(
-        'rounded-xl border bg-card p-5 card-elevated',
+        'rounded-xl border bg-card p-4 sm:p-5 card-elevated',
         variantStyles[variant]
       )}
       style={{ perspective: 1000 }}

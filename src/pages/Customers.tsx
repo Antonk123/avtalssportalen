@@ -150,7 +150,7 @@ export default function Customers() {
                     </div>
                   )}
 
-                  <div className="mt-4 flex gap-2">
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link to={`/kunder/${customer.id}`}>
                         <FileText className="mr-1.5 h-3.5 w-3.5" />
@@ -205,7 +205,7 @@ export default function Customers() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Ange org.nr och klicka sök för att autofylla</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="postal_code">Postnummer</Label>
                   <Input id="postal_code" value={form.postal_code} onChange={e => setForm(f => ({ ...f, postal_code: e.target.value }))} placeholder="123 45" className="mt-1" />
@@ -231,7 +231,7 @@ export default function Customers() {
               <div className="border-t border-border pt-4">
                 <h3 className="font-heading text-sm font-semibold text-foreground mb-3">Kontaktperson</h3>
                 <div className="space-y-3 rounded-lg border border-border p-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>Namn</Label>
                       <Input value={form.contact_name} onChange={e => setForm(f => ({ ...f, contact_name: e.target.value }))} placeholder="Anna Andersson" className="mt-1" />
@@ -241,7 +241,7 @@ export default function Customers() {
                       <Input value={form.contact_role} onChange={e => setForm(f => ({ ...f, contact_role: e.target.value }))} placeholder="VD" className="mt-1" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>E-post</Label>
                       <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="name@prefabmastarna.se" className="mt-1" />

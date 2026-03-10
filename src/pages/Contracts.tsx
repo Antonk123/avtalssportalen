@@ -489,12 +489,12 @@ export default function Contracts() {
                       />
                     </th>
                     <th className="px-6 py-3 font-medium">Avtalsnamn</th>
-                    <th className="px-6 py-3 font-medium">Kund</th>
-                    <th className="px-6 py-3 font-medium">Startar</th>
+                    <th className="px-6 py-3 font-medium hidden sm:table-cell">Kund</th>
+                    <th className="px-6 py-3 font-medium hidden md:table-cell">Startar</th>
                     <th className="px-6 py-3 font-medium">Löper ut</th>
-                    <th className="px-6 py-3 font-medium">Bindningstid</th>
-                    <th className="px-6 py-3 font-medium">Uppsägningstid</th>
-                    <th className="px-6 py-3 font-medium">Värde</th>
+                    <th className="px-6 py-3 font-medium hidden md:table-cell">Bindningstid</th>
+                    <th className="px-6 py-3 font-medium hidden lg:table-cell">Uppsägningstid</th>
+                    <th className="px-6 py-3 font-medium hidden sm:table-cell">Värde</th>
                     <th className="px-6 py-3 font-medium">Status</th>
                     <th className="px-6 py-3 font-medium">Åtgärder</th>
                   </tr>
@@ -521,16 +521,16 @@ export default function Contracts() {
                           />
                         </td>
                         <td className="px-6 py-3 font-medium text-card-foreground">{contract.contract_name}</td>
-                        <td className="px-6 py-3" onClick={e => e.stopPropagation()}>
+                        <td className="px-6 py-3 hidden sm:table-cell" onClick={e => e.stopPropagation()}>
                           <Link to={`/kunder/${contract.customer_id}`} className="text-primary hover:underline">
                             {customer?.company_name}
                           </Link>
                         </td>
-                        <td className="px-6 py-3 text-muted-foreground">{contract.start_date}</td>
+                        <td className="px-6 py-3 text-muted-foreground hidden md:table-cell">{contract.start_date}</td>
                         <td className="px-6 py-3 text-muted-foreground">{contract.end_date}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{contract.binding_months} mån</td>
-                        <td className="px-6 py-3 text-muted-foreground">{contract.notice_months} mån</td>
-                        <td className="px-6 py-3 text-muted-foreground">
+                        <td className="px-6 py-3 text-muted-foreground hidden md:table-cell">{contract.binding_months} mån</td>
+                        <td className="px-6 py-3 text-muted-foreground hidden lg:table-cell">{contract.notice_months} mån</td>
+                        <td className="px-6 py-3 text-muted-foreground hidden sm:table-cell">
                           {contract.value_sek ? `${contract.value_sek.toLocaleString('sv-SE')} kr` : '—'}
                         </td>
                         <td className="px-6 py-3"><StatusBadge status={contract.status} /></td>
@@ -601,7 +601,7 @@ export default function Contracts() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="start_date">Startdatum *</Label>
                   <Input id="start_date" type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} className="mt-1" />
@@ -611,7 +611,7 @@ export default function Contracts() {
                   <Input id="end_date" type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} className="mt-1" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="binding_months">Bindningstid (månader)</Label>
                   <Input id="binding_months" type="number" value={form.binding_months} onChange={e => setForm(f => ({ ...f, binding_months: parseInt(e.target.value) || 0 }))} className="mt-1" />

@@ -115,7 +115,7 @@ export function AppSidebar() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 space-y-0.5 pb-4 px-[12px] border-none rounded-none">
+        <nav className="flex-1 overflow-y-auto space-y-0.5 pb-4 px-[12px] border-none rounded-none">
           {visibleNavItems.map((item) => {
             const isActive = item.to === '/' ?
             location.pathname === '/' :

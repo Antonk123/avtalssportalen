@@ -493,7 +493,7 @@ export default function ContractDetail() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Startdatum *</Label>
                   <Input type="date" value={editForm.start_date} onChange={e => setEditForm(f => ({ ...f, start_date: e.target.value }))} className="mt-1" />
@@ -503,7 +503,7 @@ export default function ContractDetail() {
                   <Input type="date" value={editForm.end_date} onChange={e => setEditForm(f => ({ ...f, end_date: e.target.value }))} className="mt-1" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Bindningstid (mån)</Label>
                   <Input type="number" value={editForm.binding_months} onChange={e => setEditForm(f => ({ ...f, binding_months: parseInt(e.target.value) || 0 }))} className="mt-1" />
