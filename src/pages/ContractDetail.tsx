@@ -5,6 +5,7 @@ import { differenceInDays, format, subMonths } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { useContract, useCustomers, useContacts, useUpdateContract, useDeleteContract, useSendReminder, useProfiles, useContractTypes, ContractType, ContractStatus } from '@/hooks/useSupabaseData';
+import { useDepartments } from '@/hooks/useDepartments';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageTransition } from '@/components/PageTransition';
@@ -55,6 +56,7 @@ export default function ContractDetail() {
   const { data: allContacts = [] } = useContacts();
   const { data: profiles = [] } = useProfiles();
   const { data: contractTypes = [] } = useContractTypes();
+  const { data: departments = [] } = useDepartments();
   const updateContract = useUpdateContract();
   const deleteContract = useDeleteContract();
   const sendReminder = useSendReminder();
@@ -65,6 +67,7 @@ export default function ContractDetail() {
     contract_name: '',
     customer_id: '',
     contract_type: 'Serviceavtal' as ContractType,
+    department_id: '',
     start_date: '',
     end_date: '',
     binding_months: 12,
@@ -84,6 +87,7 @@ export default function ContractDetail() {
         contract_name: contract.contract_name,
         customer_id: contract.customer_id,
         contract_type: contract.contract_type as ContractType,
+        department_id: contract.department_id || '',
         start_date: contract.start_date,
         end_date: contract.end_date,
         binding_months: contract.binding_months,
@@ -106,6 +110,7 @@ export default function ContractDetail() {
       contract_name: editForm.contract_name,
       customer_id: editForm.customer_id,
       contract_type: editForm.contract_type,
+      department_id: editForm.department_id || null,
       start_date: editForm.start_date,
       end_date: editForm.end_date,
       binding_months: editForm.binding_months,
@@ -338,6 +343,11 @@ export default function ContractDetail() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-border">
                 <DetailCell icon={<Hash className="h-3.5 w-3.5" />} label="Avtalstyp" value={contract.contract_type} />
+                <DetailCell
+                  icon={<Building2 className="h-3.5 w-3.5" />}
+                  label="Avdelning"
+                  value={departments.find(d => d.id === contract.department_id)?.name || '—'}
+                />
                 <DetailCell icon={<Calendar className="h-3.5 w-3.5" />} label="Bindningstid" value={`${contract.binding_months} mån`} />
                 <DetailCell icon={<Clock className="h-3.5 w-3.5" />} label="Uppsägningstid" value={`${contract.notice_months} mån`} />
                 <DetailCell
@@ -490,6 +500,20 @@ export default function ContractDetail() {
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {contractTypes.map(ct => <SelectItem key={ct.id} value={ct.name}>{ct.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="department_id">Avdelning</Label>
+                <Select value={editForm.department_id} onValueChange={v => setEditForm(f => ({ ...f, department_id: v }))}>
+                  <SelectTrigger className="mt-1" id="department_id">
+                    <SelectValue placeholder="Välj avdelning..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Ingen avdelning</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSettings, useUpdateSettings, useContractTypes, useCreateContractType, useDeleteContractType, useUpdateContractType, useContractTypeUsageCount } from '@/hooks/useSupabaseData';
 import { useTags, useCreateTag, useUpdateTag, useDeleteTag, useTagUsageCount, Tag as TagType } from '@/hooks/useTags';
+import { useDepartments, useCreateDepartment, useUpdateDepartment, useDeleteDepartment, useDepartmentUsageCount, Department } from '@/hooks/useDepartments';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageTransition } from '@/components/PageTransition';
-import { Lock, Plus, X, Tag, User, Mail, Image, ChevronDown, Pencil, FileText } from 'lucide-react';
+import { Lock, Plus, X, Tag, User, Mail, Image, ChevronDown, Pencil, FileText, Building2 } from 'lucide-react';
 import { BrandingSettings } from '@/components/BrandingSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -236,6 +237,15 @@ export default function SettingsPage() {
           description="Hantera vilka avtalstyper som finns i systemet"
         >
           <ContractTypesContent />
+        </SettingsSection>
+
+        {/* Departments */}
+        <SettingsSection
+          icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
+          title="Avdelningar"
+          description="Hantera organisationens avdelningar för avtalsfiltrering"
+        >
+          <DepartmentManagementContent />
         </SettingsSection>
 
         {/* Branding */}
@@ -611,6 +621,167 @@ function ContractTypesContent() {
                 const count = type ? usageCount(type.name) : 0;
                 return count > 0
                   ? `Avtalstypen används på ${count} avtal. Du måste ändra dessa avtal först.`
+                  : 'Detta kan inte ångras.';
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function DepartmentManagementContent() {
+  const { data: departments = [] } = useDepartments();
+  const { data: usageCounts } = useDepartmentUsageCount();
+  const createDept = useCreateDepartment();
+  const updateDept = useUpdateDepartment();
+  const deleteDept = useDeleteDepartment();
+
+  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [deleteDeptId, setDeleteDeptId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+
+  const openCreateSheet = () => {
+    setEditingDept(null);
+    setFormName('');
+    setFormDescription('');
+    setSheetOpen(true);
+  };
+
+  const openEditSheet = (dept: Department) => {
+    setEditingDept(dept);
+    setFormName(dept.name);
+    setFormDescription(dept.description);
+    setSheetOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    const name = formName.trim();
+    if (!name) return;
+
+    if (departments.some(d => d.name.toLowerCase() === name.toLowerCase() && d.id !== editingDept?.id)) {
+      toast.error('Avdelningen finns redan');
+      return;
+    }
+
+    if (editingDept) {
+      await updateDept.mutateAsync({ id: editingDept.id, name, description: formDescription });
+    } else {
+      await createDept.mutateAsync({ name, description: formDescription });
+    }
+    setSheetOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDeptId) return;
+    await deleteDept.mutateAsync(deleteDeptId);
+    setDeleteDeptId(null);
+  };
+
+  const usageCount = (deptId: string) => usageCounts?.get(deptId) || 0;
+
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {departments.map((dept, i) => (
+          <motion.div
+            key={dept.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: i * 0.03 }}
+            className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-3"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-card-foreground truncate">{dept.name}</p>
+              <p className="text-xs text-muted-foreground">{usageCount(dept.id)} avtal</p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button variant="ghost" size="sm" onClick={() => openEditSheet(dept)} className="h-7 w-7 p-0">
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              {!dept.is_default && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeleteDeptId(dept.id)}
+                  className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <Button onClick={openCreateSheet} className="w-full sm:w-auto">
+        <Plus className="mr-2 h-4 w-4" />
+        Skapa ny avdelning
+      </Button>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingDept ? 'Redigera avdelning' : 'Skapa ny avdelning'}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            <div>
+              <Label htmlFor="dept_name">Namn *</Label>
+              <Input
+                id="dept_name"
+                value={formName}
+                onChange={e => setFormName(e.target.value)}
+                placeholder="IT, Marknad, etc."
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dept_description">Beskrivning</Label>
+              <Textarea
+                id="dept_description"
+                value={formDescription}
+                onChange={e => setFormDescription(e.target.value)}
+                placeholder="Valfri beskrivning..."
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={handleSubmit}
+                disabled={!formName.trim() || createDept.isPending || updateDept.isPending}
+                className="flex-1"
+              >
+                {editingDept ? 'Spara ändringar' : 'Skapa avdelning'}
+              </Button>
+              <Button variant="outline" onClick={() => setSheetOpen(false)}>Avbryt</Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={!!deleteDeptId} onOpenChange={(open) => !open && setDeleteDeptId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort avdelning?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteDeptId && (() => {
+                const dept = departments.find(d => d.id === deleteDeptId);
+                const count = dept ? usageCount(dept.id) : 0;
+                return count > 0
+                  ? `Avdelningen används på ${count} avtal. Dessa avtal kommer att få avdelningsfältet tomt.`
                   : 'Detta kan inte ångras.';
               })()}
             </AlertDialogDescription>

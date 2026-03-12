@@ -46,6 +46,7 @@ export interface Contract {
   document_url: string | null;
   notes: string;
   status: ContractStatus;
+  department_id: string | null;
 }
 
 export interface ReminderLog {

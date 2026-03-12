@@ -15,6 +15,7 @@ export interface FilterState {
   statusFilter: string;
   customerFilter: string;
   typeFilter: string;
+  departmentFilter: string;
   selectedTags: string[];
   dateFrom: string | null;
   dateTo: string | null;
@@ -92,6 +93,7 @@ export function SavedFilters({ currentFilters, onApply }: SavedFiltersProps) {
     currentFilters.statusFilter !== 'all' ||
     currentFilters.customerFilter !== 'all' ||
     currentFilters.typeFilter !== 'all' ||
+    currentFilters.departmentFilter !== 'all' ||
     currentFilters.selectedTags.length > 0 ||
     currentFilters.dateFrom ||
     currentFilters.dateTo;

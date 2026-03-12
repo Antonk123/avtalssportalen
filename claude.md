@@ -67,6 +67,18 @@ After ANY correction from the user: update tasks/lessons.md with the pattern
 - **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
 - **Minimat Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
 
+## Development Workflow
+
+### Local Development
+- Run `npm run dev` for local development with hot-reload
+- Test all changes locally before pushing to GitHub
+- Changes appear immediately in browser at `http://localhost:5173`
+
+### Deployment
+- Push to GitHub to deploy changes to production
+- Changes pushed to main branch are automatically deployed
+- Always test locally with `npm run dev` before pushing
+
 # Design Guidelines
 
 You tend to converge toward generic, "on distribution" outputs. In frontend design, this creates what users call the "AI slop" aesthetic. **Avoid this:** make creative, distinctive frontends that surprise and delight.

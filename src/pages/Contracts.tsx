@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Plus, Search, Trash2, Eye, X, Filter, Download, Upload, FileText, Loader2, CheckSquare } from 'lucide-react';
 import { useContracts, useCustomers, useContacts, useCreateContract, useCreateCustomer, useDeleteContract, useProfiles, useContractTypes, Contract, ContractStatus, ContractType } from '@/hooks/useSupabaseData';
 import { useTags, useContractTags } from '@/hooks/useTags';
+import { useDepartments } from '@/hooks/useDepartments';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageTransition } from '@/components/PageTransition';
@@ -45,6 +46,7 @@ const defaultForm = {
   reminder_days: 30,
   notes: '',
   status: 'Aktivt' as ContractStatus,
+  department_id: '',
 };
 
 export default function Contracts() {
@@ -57,6 +59,7 @@ export default function Contracts() {
   const { data: profiles = [] } = useProfiles();
   const { data: tags = [] } = useTags();
   const { data: contractTypes = [] } = useContractTypes();
+  const { data: departments = [] } = useDepartments();
   const { data: contractTags = [] } = useContractTags();
   const createContract = useCreateContract();
   const createCustomer = useCreateCustomer();
@@ -68,6 +71,7 @@ export default function Contracts() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [customerFilter, setCustomerFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -126,6 +130,7 @@ export default function Contracts() {
     statusFilter !== 'all',
     customerFilter !== 'all',
     typeFilter !== 'all',
+    departmentFilter !== 'all',
     selectedTags.length > 0,
     !!dateFrom,
     !!dateTo,
@@ -135,6 +140,7 @@ export default function Contracts() {
     setStatusFilter('all');
     setCustomerFilter('all');
     setTypeFilter('all');
+    setDepartmentFilter('all');
     setSelectedTags([]);
     setDateFrom(undefined);
     setDateTo(undefined);
@@ -146,6 +152,7 @@ export default function Contracts() {
       if (statusFilter !== 'all' && c.status !== statusFilter) return false;
       if (customerFilter !== 'all' && c.customer_id !== customerFilter) return false;
       if (typeFilter !== 'all' && c.contract_type !== typeFilter) return false;
+      if (departmentFilter !== 'all' && c.department_id !== departmentFilter) return false;
       if (dateFrom && new Date(c.end_date) < dateFrom) return false;
       if (dateTo && new Date(c.end_date) > dateTo) return false;
       if (selectedTags.length > 0) {
@@ -159,7 +166,7 @@ export default function Contracts() {
       }
       return true;
     });
-  }, [contracts, searchQuery, statusFilter, customerFilter, typeFilter, selectedTags, dateFrom, dateTo, customers, tagsByContract]);
+  }, [contracts, searchQuery, statusFilter, customerFilter, typeFilter, departmentFilter, selectedTags, dateFrom, dateTo, customers, tagsByContract]);
 
   // Selection helpers
   const toggleSelect = (id: string) => {
@@ -223,6 +230,7 @@ export default function Contracts() {
         contract_name: form.contract_name,
         customer_id: form.customer_id,
         contract_type: form.contract_type,
+        department_id: form.department_id || null,
         start_date: form.start_date,
         end_date: form.end_date,
         binding_months: form.binding_months,
@@ -349,6 +357,7 @@ export default function Contracts() {
                   statusFilter,
                   customerFilter,
                   typeFilter,
+                  departmentFilter,
                   selectedTags,
                   dateFrom: dateFrom?.toISOString() ?? null,
                   dateTo: dateTo?.toISOString() ?? null,
@@ -358,6 +367,7 @@ export default function Contracts() {
                   setStatusFilter(f.statusFilter || 'all');
                   setCustomerFilter(f.customerFilter || 'all');
                   setTypeFilter(f.typeFilter || 'all');
+                  setDepartmentFilter(f.departmentFilter || 'all');
                   setSelectedTags(f.selectedTags || []);
                   setDateFrom(f.dateFrom ? new Date(f.dateFrom) : undefined);
                   setDateTo(f.dateTo ? new Date(f.dateTo) : undefined);
@@ -386,6 +396,13 @@ export default function Contracts() {
                 <SelectContent>
                   <SelectItem value="all">Alla avtalstyper</SelectItem>
                   {contractTypes.map(ct => <SelectItem key={ct.id} value={ct.name}>{ct.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] h-10 sm:h-9"><SelectValue placeholder="Alla avdelningar" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alla avdelningar</SelectItem>
+                  {departments.map(dept => <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Popover>
@@ -598,6 +615,20 @@ export default function Contracts() {
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {contractTypes.map(ct => <SelectItem key={ct.id} value={ct.name}>{ct.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="department_id">Avdelning</Label>
+                <Select value={form.department_id} onValueChange={v => setForm(f => ({ ...f, department_id: v }))}>
+                  <SelectTrigger className="mt-1" id="department_id">
+                    <SelectValue placeholder="Välj avdelning..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Ingen avdelning</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
