@@ -504,10 +504,10 @@ export default function ContractDetail() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="department_id">Avdelning</Label>
-                <Select value={editForm.department_id} onValueChange={v => setEditForm(f => ({ ...f, department_id: v }))}>
+                <Label htmlFor="department_id">Avdelning (valfritt)</Label>
+                <Select value={editForm.department_id || undefined} onValueChange={v => setEditForm(f => ({ ...f, department_id: v }))}>
                   <SelectTrigger className="mt-1" id="department_id">
-                    <SelectValue placeholder="Välj avdelning (valfritt)" />
+                    <SelectValue placeholder="Välj avdelning..." />
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map(dept => (
