@@ -622,10 +622,9 @@ export default function Contracts() {
                 <Label htmlFor="department_id">Avdelning</Label>
                 <Select value={form.department_id} onValueChange={v => setForm(f => ({ ...f, department_id: v }))}>
                   <SelectTrigger className="mt-1" id="department_id">
-                    <SelectValue placeholder="Välj avdelning..." />
+                    <SelectValue placeholder="Välj avdelning (valfritt)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ingen avdelning</SelectItem>
                     {departments.map(dept => (
                       <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
                     ))}
