@@ -416,6 +416,46 @@ export function useDeleteContractType() {
   });
 }
 
+export function useUpdateContractType() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { data, error } = await supabase
+        .from('contract_types')
+        .update({ name })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['contract_types'] });
+      toast.success('Avtalstyp uppdaterad');
+    },
+    onError: (e: Error) => toast.error(`Kunde inte uppdatera: ${e.message}`),
+  });
+}
+
+export function useContractTypeUsageCount() {
+  return useQuery({
+    queryKey: ['contract_type_usage_counts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contracts')
+        .select('contract_type');
+      if (error) throw error;
+
+      const counts = new Map<string, number>();
+      data.forEach(c => {
+        const type = c.contract_type;
+        counts.set(type, (counts.get(type) || 0) + 1);
+      });
+      return counts;
+    },
+  });
+}
+
 // ===== PROFILES =====
 export function useProfiles() {
   return useQuery({

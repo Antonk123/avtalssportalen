@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useSettings, useUpdateSettings, useContractTypes, useCreateContractType, useDeleteContractType } from '@/hooks/useSupabaseData';
+import { useSettings, useUpdateSettings, useContractTypes, useCreateContractType, useDeleteContractType, useUpdateContractType, useContractTypeUsageCount } from '@/hooks/useSupabaseData';
+import { useTags, useCreateTag, useUpdateTag, useDeleteTag, useTagUsageCount, Tag as TagType } from '@/hooks/useTags';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageTransition } from '@/components/PageTransition';
-import { Lock, Plus, X, Tag, User, Mail, Image, ChevronDown } from 'lucide-react';
+import { Lock, Plus, X, Tag, User, Mail, Image, ChevronDown, Pencil, FileText } from 'lucide-react';
 import { BrandingSettings } from '@/components/BrandingSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const defaultSettings = {
@@ -215,9 +220,18 @@ export default function SettingsPage() {
           </Button>
         </SettingsSection>
 
-        {/* Contract Types */}
+        {/* Tags */}
         <SettingsSection
           icon={<Tag className="h-4 w-4 text-muted-foreground" />}
+          title="Taggar"
+          description="Hantera färgkodade taggar för att kategorisera avtal"
+        >
+          <TagManagementContent />
+        </SettingsSection>
+
+        {/* Contract Types */}
+        <SettingsSection
+          icon={<FileText className="h-4 w-4 text-muted-foreground" />}
           title="Avtalstyper"
           description="Hantera vilka avtalstyper som finns i systemet"
         >
@@ -280,52 +294,338 @@ export default function SettingsPage() {
   );
 }
 
-function ContractTypesContent() {
-  const { data: contractTypes = [] } = useContractTypes();
-  const createType = useCreateContractType();
-  const deleteType = useDeleteContractType();
-  const [newName, setNewName] = useState('');
+function TagManagementContent() {
+  const { data: tags = [] } = useTags();
+  const { data: usageCounts } = useTagUsageCount();
+  const createTag = useCreateTag();
+  const updateTag = useUpdateTag();
+  const deleteTag = useDeleteTag();
 
-  const handleAdd = () => {
-    const name = newName.trim();
+  const [editingTag, setEditingTag] = useState<TagType | null>(null);
+  const [deleteTagId, setDeleteTagId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formColor, setFormColor] = useState('#2563EB');
+
+  const colors = ['#2563EB', '#059669', '#D97706', '#7C3AED', '#DC2626', '#E11D48', '#0891B2', '#4F46E5'];
+
+  const openCreateSheet = () => {
+    setEditingTag(null);
+    setFormName('');
+    setFormColor('#2563EB');
+    setSheetOpen(true);
+  };
+
+  const openEditSheet = (tag: TagType) => {
+    setEditingTag(tag);
+    setFormName(tag.name);
+    setFormColor(tag.color);
+    setSheetOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    const name = formName.trim();
     if (!name) return;
-    if (contractTypes.some(ct => ct.name.toLowerCase() === name.toLowerCase())) {
-      toast.error('Avtalstypen finns redan');
+
+    if (tags.some(t => t.name.toLowerCase() === name.toLowerCase() && t.id !== editingTag?.id)) {
+      toast.error('Taggen finns redan');
       return;
     }
-    createType.mutate(name);
-    setNewName('');
+
+    if (editingTag) {
+      await updateTag.mutateAsync({ id: editingTag.id, name, color: formColor });
+    } else {
+      await createTag.mutateAsync({ name, color: formColor });
+    }
+    setSheetOpen(false);
   };
+
+  const confirmDelete = async () => {
+    if (!deleteTagId) return;
+    await deleteTag.mutateAsync(deleteTagId);
+    setDeleteTagId(null);
+  };
+
+  const usageCount = (tagId: string) => usageCounts?.get(tagId) || 0;
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        {contractTypes.map(ct => (
-          <div key={ct.id} className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm">
-            <span className="text-card-foreground">{ct.name}</span>
-            <button
-              onClick={() => deleteType.mutate(ct.id)}
-              className="ml-1 rounded-full p-0.5 hover:bg-destructive/10 hover:text-destructive transition-colors"
-              title="Ta bort"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {tags.map((tag, i) => (
+          <motion.div
+            key={tag.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: i * 0.03 }}
+            className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="h-4 w-4 rounded-full shrink-0"
+                style={{ backgroundColor: tag.color }}
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-card-foreground truncate">{tag.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {usageCount(tag.id)} avtal
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => openEditSheet(tag)}
+                className="h-7 w-7 p-0"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteTagId(tag.id)}
+                className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </motion.div>
         ))}
       </div>
-      <div className="flex gap-2">
-        <Input
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          placeholder="Ny avtalstyp..."
-          className="max-w-xs"
-          onKeyDown={e => e.key === 'Enter' && handleAdd()}
-        />
-        <Button onClick={handleAdd} disabled={!newName.trim() || createType.isPending} size="sm">
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          Lägg till
-        </Button>
+
+      <Button onClick={openCreateSheet} className="w-full sm:w-auto">
+        <Plus className="mr-2 h-4 w-4" />
+        Skapa ny tagg
+      </Button>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingTag ? 'Redigera tagg' : 'Skapa ny tagg'}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            <div>
+              <Label htmlFor="tag_name">Namn *</Label>
+              <Input
+                id="tag_name"
+                value={formName}
+                onChange={e => setFormName(e.target.value)}
+                placeholder="IT, Säkerhet, etc."
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Färg</Label>
+              <div className="mt-2 grid grid-cols-8 gap-2">
+                {colors.map(color => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setFormColor(color)}
+                    className={cn(
+                      "h-10 w-10 rounded-lg transition-all",
+                      formColor === color && "ring-2 ring-offset-2 ring-primary scale-110"
+                    )}
+                    style={{ backgroundColor: color }}
+                    title={`Välj färg ${color}`}
+                    aria-label={`Välj färg ${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={handleSubmit}
+                disabled={!formName.trim() || createTag.isPending || updateTag.isPending}
+                className="flex-1"
+              >
+                {editingTag ? 'Spara ändringar' : 'Skapa tagg'}
+              </Button>
+              <Button variant="outline" onClick={() => setSheetOpen(false)}>
+                Avbryt
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={!!deleteTagId} onOpenChange={(open) => !open && setDeleteTagId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort tagg?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTagId && usageCount(deleteTagId) > 0
+                ? `Taggen används på ${usageCount(deleteTagId)} avtal. Den kommer att tas bort från alla dessa avtal.`
+                : 'Detta kan inte ångras.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function ContractTypesContent() {
+  const { data: contractTypes = [] } = useContractTypes();
+  const { data: usageCounts } = useContractTypeUsageCount();
+  const createType = useCreateContractType();
+  const updateType = useUpdateContractType();
+  const deleteType = useDeleteContractType();
+
+  const [editingType, setEditingType] = useState<any | null>(null);
+  const [deleteTypeId, setDeleteTypeId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [formName, setFormName] = useState('');
+
+  const openCreateSheet = () => {
+    setEditingType(null);
+    setFormName('');
+    setSheetOpen(true);
+  };
+
+  const openEditSheet = (type: any) => {
+    setEditingType(type);
+    setFormName(type.name);
+    setSheetOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    const name = formName.trim();
+    if (!name) return;
+
+    if (contractTypes.some(ct => ct.name.toLowerCase() === name.toLowerCase() && ct.id !== editingType?.id)) {
+      toast.error('Avtalstypen finns redan');
+      return;
+    }
+
+    if (editingType) {
+      await updateType.mutateAsync({ id: editingType.id, name });
+    } else {
+      createType.mutate(name);
+    }
+    setSheetOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTypeId) return;
+    await deleteType.mutateAsync(deleteTypeId);
+    setDeleteTypeId(null);
+  };
+
+  const usageCount = (typeName: string) => usageCounts?.get(typeName) || 0;
+
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {contractTypes.map((ct, i) => (
+          <motion.div
+            key={ct.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: i * 0.03 }}
+            className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-3"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-card-foreground truncate">{ct.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {usageCount(ct.name)} avtal
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => openEditSheet(ct)}
+                className="h-7 w-7 p-0"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              {!ct.is_default && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeleteTypeId(ct.id)}
+                  className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        ))}
       </div>
+
+      <Button onClick={openCreateSheet} className="w-full sm:w-auto">
+        <Plus className="mr-2 h-4 w-4" />
+        Skapa ny avtalstyp
+      </Button>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingType ? 'Redigera avtalstyp' : 'Skapa ny avtalstyp'}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            <div>
+              <Label htmlFor="type_name">Namn *</Label>
+              <Input
+                id="type_name"
+                value={formName}
+                onChange={e => setFormName(e.target.value)}
+                placeholder="Serviceavtal, Licensavtal, etc."
+                className="mt-1"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={handleSubmit}
+                disabled={!formName.trim() || createType.isPending || updateType.isPending}
+                className="flex-1"
+              >
+                {editingType ? 'Spara ändringar' : 'Skapa avtalstyp'}
+              </Button>
+              <Button variant="outline" onClick={() => setSheetOpen(false)}>
+                Avbryt
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={!!deleteTypeId} onOpenChange={(open) => !open && setDeleteTypeId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort avtalstyp?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTypeId && (() => {
+                const type = contractTypes.find(t => t.id === deleteTypeId);
+                const count = type ? usageCount(type.name) : 0;
+                return count > 0
+                  ? `Avtalstypen används på ${count} avtal. Du måste ändra dessa avtal först.`
+                  : 'Detta kan inte ångras.';
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
