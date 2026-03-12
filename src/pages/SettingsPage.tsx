@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -82,6 +83,7 @@ export default function SettingsPage() {
   const { data: dbSettings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
   const { user, profile } = useAuth();
+  const { data: departments = [] } = useDepartments();
   const [settings, setSettings] = useState(defaultSettings);
   const [showPreview, setShowPreview] = useState(false);
   const [profileName, setProfileName] = useState('');
@@ -106,7 +108,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (profile) {
       setProfileName(profile.full_name || '');
-      setProfileDepartment(profile.department || '');
+      setProfileDepartment(profile.department_id || '');
     }
   }, [profile]);
 
@@ -123,7 +125,7 @@ export default function SettingsPage() {
     setSavingProfile(true);
     const { error } = await supabase
       .from('profiles')
-      .update({ full_name: profileName, department: profileDepartment, updated_at: new Date().toISOString() })
+      .update({ full_name: profileName, department_id: profileDepartment, updated_at: new Date().toISOString() })
       .eq('id', user.id);
     setSavingProfile(false);
     if (error) {
@@ -191,7 +193,16 @@ export default function SettingsPage() {
           </div>
           <div>
             <Label htmlFor="profile_department">Avdelning</Label>
-            <Input id="profile_department" value={profileDepartment} onChange={e => setProfileDepartment(e.target.value)} placeholder="T.ex. IT, Ekonomi" className="mt-1" />
+            <Select value={profileDepartment} onValueChange={setProfileDepartment}>
+              <SelectTrigger className="mt-1" id="profile_department">
+                <SelectValue placeholder="Välj avdelning..." />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>E-post</Label>

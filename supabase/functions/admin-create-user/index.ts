@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, full_name, role } = await req.json();
+    const { email, full_name, role, department_id } = await req.json();
     if (!email) {
       return new Response(JSON.stringify({ error: "E-post krävs" }), {
         status: 400,
@@ -85,11 +85,14 @@ Deno.serve(async (req) => {
         .eq("user_id", newUser.user.id);
     }
 
-    // Update profile name
-    if (newUser.user && full_name) {
+    // Update profile name and department
+    if (newUser.user && (full_name || department_id)) {
       await supabaseAdmin
         .from("profiles")
-        .update({ full_name })
+        .update({
+          full_name: full_name || undefined,
+          department_id: department_id || null,
+        })
         .eq("id", newUser.user.id);
     }
 

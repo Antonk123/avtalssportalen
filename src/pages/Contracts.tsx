@@ -52,7 +52,7 @@ const defaultForm = {
 export default function Contracts() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { canEdit, canDelete } = useAuth();
+  const { canEdit, canDelete, profile, isAdmin } = useAuth();
   const { data: contracts = [], isLoading: loadingContracts } = useContracts();
   const { data: customers = [] } = useCustomers();
   const { data: allContacts = [] } = useContacts();
@@ -145,6 +145,15 @@ export default function Contracts() {
     setDateFrom(undefined);
     setDateTo(undefined);
     setSearchQuery('');
+  };
+
+  const handleOpenSheet = () => {
+    setForm({
+      ...defaultForm,
+      // Pre-fill department for non-admins
+      department_id: !isAdmin && profile?.department_id ? profile.department_id : '',
+    });
+    setSheetOpen(true);
   };
 
   const filteredContracts = useMemo(() => {
@@ -309,7 +318,7 @@ export default function Contracts() {
               }))}
             />
             {canEdit && (
-              <Button onClick={() => setSheetOpen(true)}>
+              <Button onClick={handleOpenSheet}>
                 <Plus className="mr-2 h-4 w-4" />
                 Lägg till avtal
               </Button>
@@ -619,7 +628,9 @@ export default function Contracts() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="department_id">Avdelning (valfritt)</Label>
+                <Label htmlFor="department_id">
+                  Avdelning {!isAdmin ? '(förvalt till din avdelning)' : '(valfritt)'}
+                </Label>
                 <Select value={form.department_id || undefined} onValueChange={v => setForm(f => ({ ...f, department_id: v }))}>
                   <SelectTrigger className="mt-1" id="department_id">
                     <SelectValue placeholder="Välj avdelning..." />

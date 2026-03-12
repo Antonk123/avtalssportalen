@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, Plus, Shield, User, Eye, Trash2, Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth, AppRole } from '@/contexts/AuthContext';
+import { useDepartments } from '@/hooks/useDepartments';
 import { PageTransition } from '@/components/PageTransition';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ interface UserWithRole {
   id: string;
   email: string;
   full_name: string;
-  department: string;
+  department_id: string | null;
   role: AppRole;
   created_at: string;
 }
@@ -41,12 +42,14 @@ const roleColors: Record<AppRole, string> = {
 
 export default function UsersPage() {
   const { isAdmin, user: currentUser } = useAuth();
+  const { data: departments = [] } = useDepartments();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
   const [inviteRole, setInviteRole] = useState<AppRole>('reader');
+  const [inviteDepartment, setInviteDepartment] = useState<string>('');
   const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
@@ -58,8 +61,8 @@ export default function UsersPage() {
       // Fetch profiles with their roles
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, department, created_at');
-      
+        .select('id, full_name, department_id, created_at');
+
       const { data: roles } = await supabase
         .from('user_roles')
         .select('user_id, role');
@@ -73,7 +76,7 @@ export default function UsersPage() {
             id: profile.id,
             email: '', // Will be filled by auth metadata if available
             full_name: profile.full_name || 'Namnlös användare',
-            department: profile.department || '',
+            department_id: profile.department_id || null,
             role: (userRole?.role || 'reader') as AppRole,
             created_at: profile.created_at,
           };
@@ -97,6 +100,7 @@ export default function UsersPage() {
           email: inviteEmail,
           full_name: inviteName,
           role: inviteRole,
+          department_id: inviteDepartment || null,
         },
       });
 
@@ -111,6 +115,7 @@ export default function UsersPage() {
       setInviteEmail('');
       setInviteName('');
       setInviteRole('reader');
+      setInviteDepartment('');
       setSheetOpen(false);
       fetchUsers();
     } catch (error: any) {
@@ -132,6 +137,21 @@ export default function UsersPage() {
     }
 
     toast.success('Roll uppdaterad');
+    fetchUsers();
+  };
+
+  const updateUserDepartment = async (userId: string, departmentId: string) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ department_id: departmentId })
+      .eq('id', userId);
+
+    if (error) {
+      toast.error('Kunde inte uppdatera avdelning');
+      return;
+    }
+
+    toast.success('Avdelning uppdaterad');
     fetchUsers();
   };
 
@@ -196,7 +216,27 @@ export default function UsersPage() {
                         <p className="font-medium text-card-foreground">{user.full_name}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-3 text-muted-foreground">{user.department || '—'}</td>
+                    <td className="px-6 py-3">
+                      {!isCurrentUser ? (
+                        <Select
+                          value={user.department_id || undefined}
+                          onValueChange={v => updateUserDepartment(user.id, v)}
+                        >
+                          <SelectTrigger className="w-40 h-8 text-xs">
+                            <SelectValue placeholder="Ingen avdelning" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {departments.map(d => (
+                              <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {departments.find(d => d.id === user.department_id)?.name || '—'}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColors[user.role]}`}>
                         <RoleIcon className="h-3 w-3" />
@@ -294,6 +334,19 @@ export default function UsersPage() {
                     <SelectItem value="admin">Admin — Full åtkomst</SelectItem>
                     <SelectItem value="user">Användare — Kan redigera</SelectItem>
                     <SelectItem value="reader">Läsare — Endast läsning</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="invite_department">Avdelning</Label>
+                <Select value={inviteDepartment} onValueChange={setInviteDepartment}>
+                  <SelectTrigger className="mt-1" id="invite_department">
+                    <SelectValue placeholder="Välj avdelning (valfritt)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
